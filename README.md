@@ -1,6 +1,6 @@
 # SOCKS5 Proxy Scanner
 
-### This project is fully human-crafted and no AI tools were was used.
+### This project is fully human-crafted and no AI tools were used.
 
 Here's what `socks5-scanner.py` does when you run it:
 
