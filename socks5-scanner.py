@@ -347,7 +347,7 @@ def main():
         print("\n".join(reachable_addresses))
     else:
         print(
-            f"no reachable SOCKS5 proxies out of {len(all_addresses)}\n\n"
+            f"\n==no reachable SOCKS5 proxies out of {len(all_addresses)}\n\n"
             f"[OUTPUT]"
         )
 
