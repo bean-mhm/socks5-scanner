@@ -35,21 +35,31 @@ SOURCE_REQ_PROXIES: dict[str, str] | None = None
 TEST_URL: str = "https://www.youtube.com/t/contact_us/"
 TEST_EXPECTED_STATUS_CODES: list[int] = [200]
 TEST_REQ_HEADERS: dict = deepcopy(SOURCE_REQ_HEADERS)
-TEST_REQ_TIMEOUT: float = 1.
+TEST_REQ_TIMEOUT: float = 2.
 TEST_REQ_VERIFY_SSL: bool = True
 
-TEST_COUNT: int = 3
+N_TEST_ITERS: int = 3
 """
-a SOCKS5 proxy needs to pass the test this many times in a row to not be
-discarded.
+how many times a SOCKS5 proxy address needs to pass the test to be considered
+reachable.
 """
 
-TEST_CONCURRENCY: int = 256
-"maximum number of addresses being tested at a time"
+TEST_COOLDOWN: float = 3.
+"""
+time delay in seconds between every iteration of a test. for example, if
+N_TEST_ITERS is 3, we will wait TEST_COOLDOWN seconds after the first and second
+iterations.
+"""
+
+TEST_N_CONCURRENT_REQS: int = 16
+"maximum number of test requests in progress at a time"
 
 
 OUTPUT_FORMAT: str = "socks://{0}"
 "argument #0 is address (host:port), #1 is response time in milliseconds."
+
+
+test_reqs_semaphore = asyncio.Semaphore(TEST_N_CONCURRENT_REQS)
 
 
 def is_valid_port(s: str) -> bool:
@@ -187,7 +197,6 @@ def socks5_concurrent_test_print_progress_and_increment(n_total: int):
 
 async def test_socks5_address_concurrent(
     address: str,
-    semaphore: asyncio.Semaphore,
     n_total: int
 ) -> tuple[str, float] | None:
     """
@@ -196,35 +205,36 @@ async def test_socks5_address_concurrent(
     """
 
     global socks5_concurrent_test_n_done
-    async with semaphore:
-        total_response_time: float = 0.
-        for _ in range(TEST_COUNT):
+
+    total_response_time: float = 0.
+    for test_iter in range(N_TEST_ITERS):
+        async with test_reqs_semaphore:
             response_time = await asyncio.to_thread(
                 test_socks5_address,
                 address
             )
-            if response_time is None:
-                socks5_concurrent_test_print_progress_and_increment(n_total)
-                return None
-            total_response_time += response_time
+        if response_time is None:
+            socks5_concurrent_test_print_progress_and_increment(n_total)
+            return None
+        total_response_time += response_time
 
-        socks5_concurrent_test_print_progress_and_increment(n_total)
-        return (address, total_response_time / float(TEST_COUNT))
+        if test_iter < N_TEST_ITERS - 1:
+            await asyncio.sleep(TEST_COOLDOWN)
+
+    socks5_concurrent_test_print_progress_and_increment(n_total)
+    return (address, total_response_time / float(N_TEST_ITERS))
 
 
 async def test_socks5_addresses_concurrent(
-    addresses: list[str],
-    concurrency: int = TEST_CONCURRENCY,
+    addresses: list[str]
 ) -> list[tuple[str, float]]:
     global socks5_concurrent_test_n_done
     socks5_concurrent_test_n_done = 0
 
     print(" " * 24, end="")
-    semaphore = asyncio.Semaphore(concurrency)
     tasks = [
         test_socks5_address_concurrent(
             address,
-            semaphore,
             len(addresses)
         )
         for address in addresses
