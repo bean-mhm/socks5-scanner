@@ -35,7 +35,7 @@ SOURCE_REQ_PROXIES: dict[str, str] | None = None
 TEST_URL: str = "https://www.youtube.com/t/contact_us/"
 TEST_EXPECTED_STATUS_CODES: list[int] = [200]
 TEST_REQ_HEADERS: dict = deepcopy(SOURCE_REQ_HEADERS)
-TEST_REQ_TIMEOUT: float = 2.
+TEST_REQ_TIMEOUT: float = 5.
 TEST_REQ_VERIFY_SSL: bool = True
 
 N_TEST_ITERS: int = 3
@@ -51,7 +51,7 @@ N_TEST_ITERS is 3, we will wait TEST_COOLDOWN seconds after the first and second
 iterations.
 """
 
-TEST_N_CONCURRENT_REQS: int = 16
+TEST_N_CONCURRENT_REQS: int = 32
 "maximum number of test requests in progress at a time"
 
 
