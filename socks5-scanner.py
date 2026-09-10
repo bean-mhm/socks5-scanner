@@ -32,8 +32,8 @@ SOURCE_REQ_TIMEOUT: float = 5.
 SOURCE_REQ_PROXIES: dict[str, str] | None = None
 
 
-TEST_URL: str = "https://www.youtube.com/t/contact_us/"
-TEST_EXPECTED_STATUS_CODES: list[int] = [200]
+TEST_URL: str = "https://www.youtube.com/generate_204"
+TEST_EXPECTED_STATUS_CODES: list[int] = [204]
 TEST_REQ_HEADERS: dict = deepcopy(SOURCE_REQ_HEADERS)
 TEST_REQ_TIMEOUT: float = 5.
 TEST_REQ_VERIFY_SSL: bool = True
