@@ -35,10 +35,10 @@ SOURCE_REQ_PROXIES: dict[str, str] | None = None
 TEST_URL: str = "https://www.youtube.com/generate_204"
 TEST_EXPECTED_STATUS_CODES: list[int] = [204]
 TEST_REQ_HEADERS: dict = deepcopy(SOURCE_REQ_HEADERS)
-TEST_REQ_TIMEOUT: float = 5.
+TEST_REQ_TIMEOUT: float = 3.
 TEST_REQ_VERIFY_SSL: bool = True
 
-N_TEST_ITERS: int = 3
+N_TEST_ITERS: int = 2
 """
 how many times a SOCKS5 proxy address needs to pass the test to be considered
 reachable.
